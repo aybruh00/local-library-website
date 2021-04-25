@@ -44,3 +44,47 @@ class LoanedBooksByUserListView(LoginRequiredMixin,generic.ListView):
 
     def get_queryset(self):
         return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
+
+class SearchResultsView(generic.ListView):
+    model = Book
+    template_name = 'search-results.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        query = self.request.GET.get("q")
+        object_list = Book.objects.filter(title__icontains=query)
+        return object_list
+
+import datetime
+
+from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+from books.forms import IssueBookForm
+
+@login_required
+def issue_book(request, pk):
+    book_instance = get_object_or_404(BookInstance, pk=pk)
+
+    if request.method == 'POST':
+
+        form = IssueBookForm(request.POST)
+
+        if form.is_valid():
+            book_instance.due_back = form.cleaned_data['renewal_date']
+            book_instance.save()
+
+            return HttpResponseRedirect(reverse('all-borrowed') )
+
+    else:
+        proposed_issue_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        form = IssueBookForm(initial={'issue_date': proposed_issue_date})
+
+    context = {
+        'form': form,
+        'book_instance': book_instance,
+    }
+
+    return render(request, 'books/book_issue.html', context)

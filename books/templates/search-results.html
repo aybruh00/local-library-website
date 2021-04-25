@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h3>search results</h3>
+  {% if book_list %}
+  <ul>
+    {% for book in book_list %}
+      <li>
+        <a href="{{ book.get_absolute_url }}">{{ book.title }}</a> ({{book.author}})
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>No books found in the library.</p>
+  {% endif %} 
+{% endblock %}
