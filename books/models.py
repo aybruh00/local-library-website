@@ -60,13 +60,6 @@ class BookInstance(models.Model):
             return True
         return False
 
-    # def get_absolute_url(self):
-    #     return reverse('bookInstance-detail', args=[str(self.id)])
-
-    # def get_borrow_url(self):
-    #     s=self.get_absolute_url()
-    #     s+="borrow/"
-
     class Meta:
         ordering = ['due_back']
         permissions = (("can_mark_returned", "Set book as returned"),)

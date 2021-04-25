@@ -55,6 +55,8 @@ class SearchResultsView(generic.ListView):
         object_list = Book.objects.filter(title__icontains=query)
         return object_list
 
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
 import datetime
 
 from django.contrib.auth.decorators import login_required, permission_required
@@ -65,6 +67,7 @@ from django.urls import reverse
 from books.forms import IssueBookForm
 
 @login_required
+# @permission_required('catalog.can_mark_returned', raise_exception=True)
 def issue_book(request, pk):
     book_instance = get_object_or_404(BookInstance, pk=pk)
 
@@ -73,10 +76,11 @@ def issue_book(request, pk):
         form = IssueBookForm(request.POST)
 
         if form.is_valid():
-            book_instance.due_back = form.cleaned_data['renewal_date']
+            book_instance.due_back = form.cleaned_data['issue_date']
+            book_instance.status = 'o'
             book_instance.save()
 
-            return HttpResponseRedirect(reverse('all-borrowed') )
+            return HttpResponseRedirect(reverse('books') )
 
     else:
         proposed_issue_date = datetime.date.today() + datetime.timedelta(weeks=3)

@@ -24,9 +24,11 @@
       {% endif %}
       <p><strong>Imprint:</strong> {{ copy.imprint }}</p>
       <p class="text-muted"><strong>Id:</strong> {{ copy.id }}</p>
-      <!-- {% if copy.status == 'a' %}
-        <a href={{ copy.get_borrow_url }}> Borrow </a>
-      {% endif %} -->
+      {% if copy.status == 'a' %}
+      {% if perms.catalog.can_mark_returned %} 
+        <a href="{% url 'issue-book' copy.id %}">Issue</a>  
+      {% endif %}
+      {% endif %}
     {% endfor %}
   </div>
 {% endblock %}
